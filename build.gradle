@@ -1,0 +1,61 @@
+buildscript {
+    ext {
+        springBootVersion = '1.3.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot' 
+
+jar {
+    baseName = 'demo'
+    version = '0.0.1-SNAPSHOT'
+    from ('./frontend/built') {
+        into 'static'
+    }
+}
+
+task copyFrontendToBuild(type: Copy) {
+    from ('./frontend/built')
+    into 'build/resources/main/static'
+}
+
+jar.dependsOn(':samples:react-tutorial:frontend:assemble')
+jar.dependsOn(':samples:react-tutorial:copyFrontendToBuild')
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: deps.springBootVersion)
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: deps.springBootVersion)
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: deps.springBootVersion)
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: deps.springBootVersion)
+    runtime(group: 'com.h2database', name: 'h2', version: deps.h2)
+    testCompile(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: deps.springBootVersion)
+}
+
+
+eclipse {
+    classpath {
+         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+}
